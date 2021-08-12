@@ -29,11 +29,13 @@ defmodule Explorer.Chain.Transaction do
 
   alias Explorer.Chain.Transaction.{Fork, Status}
 
-  @optional_attrs ~w(block_hash block_number created_contract_address_hash cumulative_gas_used earliest_processing_start
+  @optional_attrs ~w(max_priority_fee_per_gas max_fee_per_gas block_hash block_number created_contract_address_hash cumulative_gas_used earliest_processing_start
                      error gas_used index created_contract_code_indexed_at status
-                     to_address_hash revert_reason max_priority_fee_per_gas max_fee_per_gas type)a
+                     to_address_hash revert_reason)a
 
   @required_attrs ~w(from_address_hash gas gas_price hash input nonce r s v value)a
+
+  @required_attrs_for_1559 ~w(type)a
 
   @typedoc """
   X coordinate module n in
@@ -132,6 +134,9 @@ defmodule Explorer.Chain.Transaction do
    * `v` - The V field of the signature.
    * `value` - wei transferred from `from_address` to `to_address`
    * `revert_reason` - revert reason of transaction
+   * `max_priority_fee_per_gas` - User defined maximum fee (tip) per unit of gas paid to validator for transaction prioritization.
+   * `max_fee_per_gas` - Maximum total amount per unit of gas a user is willing to pay for a transaction, including base fee and priority fee.
+   * `type` - New transaction type identifier introduced in EIP 2718 (Berlin HF)
   """
   @type t :: %__MODULE__{
           block: %Ecto.Association.NotLoaded{} | Block.t() | nil,
@@ -186,10 +191,7 @@ defmodule Explorer.Chain.Transaction do
              :v,
              :status,
              :value,
-             :revert_reason,
-             :max_priority_fee_per_gas,
-             :max_fee_per_gas,
-             :type
+             :revert_reason
            ]}
 
   @derive {Jason.Encoder,
@@ -209,10 +211,7 @@ defmodule Explorer.Chain.Transaction do
              :v,
              :status,
              :value,
-             :revert_reason,
-             :max_priority_fee_per_gas,
-             :max_fee_per_gas,
-             :type
+             :revert_reason
            ]}
 
   @primary_key {:hash, Hash.Full, autogenerate: false}
@@ -410,9 +409,18 @@ defmodule Explorer.Chain.Transaction do
 
   """
   def changeset(%__MODULE__{} = transaction, attrs \\ %{}) do
+    enabled_1559 = Application.get_env(:explorer, :enabled_1559_support)
+
+    required_attrs = if enabled_1559, do: @required_attrs ++ @required_attrs_for_1559, else: @required_attrs
+
+    attrs_to_cast =
+      if enabled_1559,
+        do: @required_attrs ++ @required_attrs_for_1559 ++ @optional_attrs,
+        else: @required_attrs ++ @optional_attrs
+
     transaction
-    |> cast(attrs, @required_attrs ++ @optional_attrs)
-    |> validate_required(@required_attrs)
+    |> cast(attrs, attrs_to_cast)
+    |> validate_required(required_attrs)
     |> validate_collated()
     |> validate_error()
     |> validate_status()

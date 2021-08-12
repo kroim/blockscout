@@ -40,7 +40,10 @@ defmodule EthereumJSONRPC.Transaction do
    * `"transactionIndex"` - `t:EthereumJSONRPC.quantity/0` for the index of the transaction in the block.  `nil` when
      transaction is pending.
    * `"v"` - `t:EthereumJSONRPC.quantity/0` for the V field of the signature.
-   * `"value"` - `t:EthereumJSONRPC.quantity/0` of wei transferred
+   * `"value"` - `t:EthereumJSONRPC.quantity/0` of wei transferred.
+   * `"maxPriorityFeePerGas"` - `t:EthereumJSONRPC.quantity/0` of wei to denote max priority fee per unit of gas used. Introduced in [EIP-1559](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md)
+   * `"maxFeePerGas"` - `t:EthereumJSONRPC.quantity/0` of wei to denote max fee per unit of gas used. Introduced in [EIP-1559](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md)
+   * `"type"` - `t:EthereumJSONRPC.quantity/0` denotes transaction type. Introduced in [EIP-1559](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1559.md)
   """
   @type t :: %{
           String.t() =>
