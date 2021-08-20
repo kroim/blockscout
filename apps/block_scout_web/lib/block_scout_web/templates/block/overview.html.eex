@@ -5,7 +5,7 @@
       <!-- Block Details -->
       <div class="card js-ad-dependant-mb-2">
         <div class="card-body transaction-details">
-          <dl class="pagination-container" style="margin-bottom: 0;">
+          <dl class="pagination-container">
             <h1 class="card-title" data-test="detail_type">
               <%= gettext("%{block_type} Details", block_type: block_type(@block)) %>
             </h1>
@@ -38,7 +38,7 @@
           </dl>
           <!-- Block Height -->
           <dl class="row">
-            <dt class="col-sm-3 col-lg-2 text-muted" data-test="block_detail_number">
+            <dt class="col-sm-3 col-lg-2 text-muted">
               <%= render BlockScoutWeb.CommonComponentsView, "_i_tooltip_2.html",
               text: gettext("The block height of a particular block is defined as the number of blocks preceding it in the blockchain.") %>
               <%= if block_type(@block) == "Block" do %>
@@ -47,7 +47,7 @@
                 <%= gettext("%{block_type} Height", block_type: block_type(@block)) %>
               <% end %>
             </dt>
-            <dd class="col-sm-9 col-lg-10">
+            <dd class="col-sm-9 col-lg-10" data-test="block_detail_number">
               <%= if block_type(@block) == "Block" do %>
                 <%= @block.number %> <%= if @block.number == 0, do: " - " <> gettext("Genesis Block")%>
               <% else %>
